@@ -36,15 +36,6 @@ export default defineComponent({
       store.dispatch(ActionTypes.START_SERVICE, pid);
     },
   },
-  beforeMount() {
-    const store = useStore();
-    store.dispatch(ActionTypes.CONNECT);
-  },
-  beforeUnmount() {
-    const store = useStore();
-    // Disconnect from the websocket
-    store.dispatch(ActionTypes.DISCONNECT);
-  },
   setup() {
     const store = useStore();
     store.dispatch(ActionTypes.GET_ALL_SERVICES);

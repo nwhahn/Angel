@@ -1,10 +1,27 @@
 <template>
   <div id="nav">
-    <router-link to="/">Home</router-link> |
+    <router-link to="/">Services</router-link>
     <router-link to="/about">About</router-link>
   </div>
   <router-view />
 </template>
+<script lang="ts">
+import { defineComponent } from "vue";
+import { useStore } from "@/store";
+import { ActionTypes } from "@/store/actionTypes";
+
+export default defineComponent({
+  beforeMount() {
+    const store = useStore();
+    store.dispatch(ActionTypes.CONNECT);
+  },
+  beforeUnmount() {
+    const store = useStore();
+    // Disconnect from the websocket
+    store.dispatch(ActionTypes.DISCONNECT);
+  },
+});
+</script>
 
 <style>
 #app {
