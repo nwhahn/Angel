@@ -12,7 +12,20 @@
         >
       </div>
       <div class="service-actions">
-        <div>Action</div>
+        <Button
+          v-if="service.status === 'ACTIVE'"
+          :onClick="() => stop(service.pid)"
+          variant="error"
+        >
+          STOP
+        </Button>
+        <Button
+          v-else-if="service.status === 'STOPPED'"
+          :onClick="() => start(service.pid)"
+          variant="success"
+        >
+          START
+        </Button>
       </div>
     </div>
   </div>
@@ -22,8 +35,12 @@
 import { defineComponent, computed } from "vue";
 import { useStore } from "@/store";
 import { ActionTypes } from "@/store/actionTypes";
+import Button from "@/components/Button.vue";
 
 export default defineComponent({
+  components: {
+    Button,
+  },
   props: {
     serviceId: {
       type: String,

@@ -19,19 +19,20 @@
           </div>
           <div class="status">{{ service.status }}</div>
         </div>
-        <button
-          v-on:click="
-            service.status === 'STOPPED'
-              ? start(service.pid)
-              : stop(service.pid)
-          "
-          v-bind:class="{
-            start: service.status === 'STOPPED',
-            stop: service.status === 'ACTIVE',
-          }"
+        <Button
+          v-if="service.status === 'ACTIVE'"
+          :onClick="() => stop(service.pid)"
+          variant="error"
         >
-          {{ service.status === "STOPPED" ? "START" : "STOP" }}
-        </button>
+          STOP
+        </Button>
+        <Button
+          v-else-if="service.status === 'STOPPED'"
+          :onClick="() => start(service.pid)"
+          variant="success"
+        >
+          START
+        </Button>
       </li>
     </ul>
   </div>
@@ -40,8 +41,12 @@
 import { defineComponent, computed } from "vue";
 import { useStore, store } from "@/store";
 import { ActionTypes } from "@/store/actionTypes";
+import Button from "../components/Button.vue";
 
 export default defineComponent({
+  components: {
+    Button,
+  },
   methods: {
     stop: (pid: string) => {
       store.dispatch(ActionTypes.STOP_SERVICE, pid);
@@ -94,19 +99,5 @@ li {
   justify-content: space-between;
   padding-bottom: 16px;
   border-bottom: 1px solid gray;
-}
-button {
-  border: none;
-  cursor: pointer;
-  padding: 4px 16px;
-  border-radius: 24px;
-}
-button.start {
-  background-color: #42b983;
-  box-shadow: 3px 3px 3px darkgreen;
-}
-button.stop {
-  background-color: #ff0000;
-  box-shadow: 3px 3px 3px darkred;
 }
 </style>

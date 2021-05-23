@@ -24,8 +24,6 @@ export const getters: GetterTree<State, State> & Getters = {
   },
   getService:
     ({ services }) =>
-    (id: string): Service => {
-      console.log(id);
-      return services[id];
-    },
+    (id: string): Service =>
+      services[id],
 };

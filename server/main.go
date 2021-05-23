@@ -193,16 +193,17 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		// These will only be sent back to the ws client that made the request
 		if err != nil {
 			log.Printf("error: %v", err)
+			delete(clients, ws)
+			break
 			// Send a message to the client of what they did wrong
-			ws.WriteJSON(ErrorResponse{
-				Error: fmt.Sprintf("Internal error: %v", err),
-			})
-			if err := recover(); err != nil {
-				// Break on a panic, in case a connection was bad
-				log.Println("panic occurred:", err)
-				delete(clients, ws)
-				break
-			}
+			// ws.WriteJSON(ErrorResponse{
+			// 	Error: fmt.Sprintf("Internal error: %v", err),
+			// })
+			// if err := recover(); err != nil {
+			// 	// Break on a panic, in case a connection was bad
+			// 	log.Println("panic occurred:", err)
+
+			//}
 		} else {
 			verifyMessageAndBroadcast(ws, request)
 		}
