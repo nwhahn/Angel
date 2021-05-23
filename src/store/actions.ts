@@ -22,6 +22,10 @@ export interface Actions {
   [ActionTypes.GET_ALL_SERVICES]({
     commit,
   }: AugmentedActionContext): Promise<ServiceList>;
+  [ActionTypes.GET_SERVICE](
+    { commit }: AugmentedActionContext,
+    payload: string
+  ): Promise<Service | { error: "Not found" }>;
   [ActionTypes.ADD_SERVICE](
     { commit }: AugmentedActionContext,
     payload: Service
@@ -50,6 +54,20 @@ export const actions: ActionTree<State, State> & Actions = {
       console.log({ info: "get services failed", message: e.message });
     }
     return {};
+  },
+  async [ActionTypes.GET_SERVICE]({ commit }, pid: string) {
+    try {
+      const response = await fetch(`http://localhost:8000/services/${pid}`, {
+        headers: new Headers(),
+        redirect: "follow",
+      });
+      const service = (await response.json()) as Service;
+      commit(MutationTypes.SET_SERVICE, { ...service, pid });
+      return service;
+    } catch (e) {
+      console.log({ info: "get services failed", message: e.message });
+    }
+    return { error: "Not found" };
   },
   [ActionTypes.ADD_SERVICE]({ commit }, service: Service) {
     commit(MutationTypes.ADD_SERVICE, { ...service, pid: "Mockpid" });

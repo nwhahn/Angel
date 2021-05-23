@@ -39,6 +39,7 @@ export default defineComponent({
 #nav a {
   font-weight: bold;
   color: #2c3e50;
+  margin-left: 8px;
 }
 
 #nav a.router-link-exact-active {

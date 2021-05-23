@@ -12,6 +12,12 @@ const routes: Array<RouteRecordRaw> = [
       import(/* webpackChunkName: "services" */ "../views/Services.vue"),
   },
   {
+    path: "/services/:serviceId",
+    component: () =>
+      import(/* webpackChunkName: "service" */ "../views/Service.vue"),
+    props: (route) => ({ serviceId: route.params.serviceId }),
+  },
+  {
     path: "/about",
     name: "About",
     component: Home,
