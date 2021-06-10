@@ -63,6 +63,8 @@ export default defineComponent({
   flex-direction: row;
   padding-bottom: 16px;
   border-bottom: 1px solid gray;
+  margin-top: 32px;
+  color: #bdb3b3;
 }
 .service-header .service-name {
   display: flex;
@@ -73,6 +75,7 @@ export default defineComponent({
 .service-header .service-status {
   flex: 1;
   align-content: flex-start;
+  font-weight: bold;
 }
 .service-active {
   color: #42b983;

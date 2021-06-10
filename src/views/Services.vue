@@ -1,23 +1,34 @@
 <template>
   <div class="about">
-    <h1>Services</h1>
-    <h3>You are currently {{ isConnected ? "" : "not" }} connected</h3>
+    <h2>Services</h2>
     <ul>
       <li>
         <div class="service-info">
-          <div class="name">Name</div>
-          <div class="status">Status</div>
+          <div class="name table-heading">Name</div>
+          <div class="status table-heading">Status</div>
         </div>
-        <div>Action</div>
+        <div class="table-heading">Action</div>
       </li>
       <li v-for="service in services" :key="service.pid">
         <div class="service-info">
           <div class="name">
-            <a class="service-link" v-bind:href="'/services/' + service.pid">
+            <router-link
+              v-bind:to="'/services/' + service.pid"
+              class="service-link"
+            >
               {{ service.name }}
-            </a>
+            </router-link>
           </div>
-          <div class="status">{{ service.status }}</div>
+          <div
+            class="status"
+            v-bind:class="
+              service.status === 'STOPPED'
+                ? 'service-stopped'
+                : 'service-active'
+            "
+          >
+            {{ service.status }}
+          </div>
         </div>
         <Button
           v-if="service.status === 'ACTIVE'"
@@ -59,10 +70,8 @@ export default defineComponent({
     const store = useStore();
     store.dispatch(ActionTypes.GET_ALL_SERVICES);
     const services = computed(() => store.getters.displayServices);
-    const isConnected = computed(() => store.state.connected);
     return {
       services,
-      isConnected,
     };
   },
 });
@@ -72,6 +81,10 @@ export default defineComponent({
 .service-info {
   display: flex;
   flex-direction: row;
+  color: #bdb3b3;
+}
+.table-heading {
+  color: #bdb3b3;
 }
 .service-info div {
   text-align: left;
@@ -83,8 +96,20 @@ export default defineComponent({
 .service-info .status {
   width: 100px;
 }
+.service-info .service-active {
+  color: #42b983;
+  font-weight: bold;
+}
+.service-info .service-stopped {
+  color: #ff0000;
+  font-weight: bold;
+}
 .service-link {
-  color: black;
+  color: #bdb3b3;
+  font-weight: bold;
+}
+h2 {
+  color: #bdb3b3;
 }
 h3 {
   margin: 40px 0 0;
@@ -92,9 +117,10 @@ h3 {
 ul {
   list-style-type: none;
   padding: 0;
+  padding-inline-start: 0;
 }
 li {
-  margin: 16px 10px;
+  margin: 16px 0;
   display: flex;
   justify-content: space-between;
   padding-bottom: 16px;
