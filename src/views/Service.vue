@@ -14,14 +14,14 @@
       <div class="service-actions">
         <Button
           v-if="service.status === 'ACTIVE'"
-          :onClick="() => stop(service.pid)"
+          :onClick="() => stop(pid)"
           variant="error"
         >
           STOP
         </Button>
         <Button
           v-else-if="service.status === 'STOPPED'"
-          :onClick="() => start(service.pid)"
+          :onClick="() => start(pid)"
           variant="success"
         >
           START
@@ -33,7 +33,7 @@
 </template>
 <script lang="ts">
 import { defineComponent, computed } from "vue";
-import { useStore } from "@/store";
+import { useStore, store } from "@/store";
 import { ActionTypes } from "@/store/actionTypes";
 import Button from "@/components/Button.vue";
 
@@ -47,12 +47,22 @@ export default defineComponent({
       required: true,
     },
   },
+  methods: {
+    stop: (pid: string) => {
+      store.dispatch(ActionTypes.STOP_SERVICE, pid);
+    },
+    start: (pid: string) => {
+      store.dispatch(ActionTypes.START_SERVICE, pid);
+    },
+  },
   setup(props) {
     const store = useStore();
     store.dispatch(ActionTypes.GET_SERVICE, props.serviceId);
     const service = computed(() => store.getters.getService(props.serviceId));
+
     return {
       service,
+      pid: props.serviceId,
     };
   },
 });
