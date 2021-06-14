@@ -1,7 +1,9 @@
 <template>
   <div id="nav">
     <div class="nav-left-content">
-      <h1 class="logo">Angel UI</h1>
+      <router-link to="/">
+        <h1>Angel UI</h1>
+      </router-link>
       <router-link to="/">Services</router-link>
       <router-link to="/about">About</router-link>
     </div>
