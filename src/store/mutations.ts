@@ -11,6 +11,10 @@ export type Mutations<S = State> = {
   [MutationTypes.SERVICE_STOPPED](state: S, payload: string): Service;
   [MutationTypes.DELETE_SERVICE](state: S, payload: string): ServiceList;
   [MutationTypes.SET_SERVICES](state: S, payload: ServiceList): ServiceList;
+  [MutationTypes.SET_SERVICE](
+    state: S,
+    payload: Service & { pid: string }
+  ): Service;
   [MutationTypes.CONNECT](state: S): true;
   [MutationTypes.DISCONNECT](state: S): false;
 };
@@ -38,6 +42,13 @@ export const mutations: MutationTree<State> & Mutations = {
   [MutationTypes.SET_SERVICES](state, services: ServiceList) {
     state.services = services;
     return state.services;
+  },
+  [MutationTypes.SET_SERVICE](
+    state,
+    { pid, ...service }: Service & { pid: string }
+  ) {
+    state.services[pid] = service;
+    return state.services[pid];
   },
   [MutationTypes.CONNECT](state) {
     state.connected = true;

@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
-
 	"github.com/segmentio/ksuid"
 )
 
@@ -92,7 +92,30 @@ func getServices(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
 }
+func getService(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	enableCors(&w)
+	serviceId, ok := vars["serviceId"]
 
+	if !ok {
+		http.Error(w, "Service id not provided in path parameters", http.StatusBadRequest)
+	}
+	var id, parseError = ksuid.Parse(serviceId)
+	if parseError != nil {
+		http.Error(w, fmt.Sprintf("Invalid id format %v", parseError), http.StatusBadRequest)
+	}
+	if _, ok := services[id]; !ok {
+		http.Error(w, "Not Found", http.StatusNotFound)
+	}
+	data, err := json.Marshal(services[id])
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
 func verifyMessageAndBroadcast(ws *websocket.Conn, request OperationRequest) {
 
 	var errorResponse ErrorResponse
@@ -170,16 +193,17 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		// These will only be sent back to the ws client that made the request
 		if err != nil {
 			log.Printf("error: %v", err)
+			delete(clients, ws)
+			break
 			// Send a message to the client of what they did wrong
-			ws.WriteJSON(ErrorResponse{
-				Error: fmt.Sprintf("Internal error: %v", err),
-			})
-			if err := recover(); err != nil {
-				// Break on a panic, in case a connection was bad
-				log.Println("panic occurred:", err)
-				delete(clients, ws)
-				break
-			}
+			// ws.WriteJSON(ErrorResponse{
+			// 	Error: fmt.Sprintf("Internal error: %v", err),
+			// })
+			// if err := recover(); err != nil {
+			// 	// Break on a panic, in case a connection was bad
+			// 	log.Println("panic occurred:", err)
+
+			//}
 		} else {
 			verifyMessageAndBroadcast(ws, request)
 		}
@@ -206,15 +230,17 @@ func handleMessages() {
 }
 
 func main() {
-	http.HandleFunc("/services", getServices)
+	router := mux.NewRouter()
+	router.HandleFunc("/services", getServices)
+	router.HandleFunc("/services/{serviceId}", getService)
 
-	http.HandleFunc("/ws", handleConnections)
+	router.HandleFunc("/ws", handleConnections)
 
 	// Start listening for incoming chat messages
 	go handleMessages()
 
 	log.Println("http server started on :8000")
-	err := http.ListenAndServe(":8000", nil)
+	err := http.ListenAndServe(":8000", router)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}

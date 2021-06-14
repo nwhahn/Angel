@@ -3,6 +3,7 @@ import { State, Service } from "./state";
 
 export type Getters = {
   displayServices(state: State): Array<Service>;
+  getService(state: State): (id: string) => Service;
 };
 
 export const getters: GetterTree<State, State> & Getters = {
@@ -21,4 +22,8 @@ export const getters: GetterTree<State, State> & Getters = {
     //   ...servicesArray.filter(({ status }) => status !== "ACTIVE"),
     // ];
   },
+  getService:
+    ({ services }) =>
+    (id: string): Service =>
+      services[id],
 };

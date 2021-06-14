@@ -1,12 +1,37 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+  <Header />
+  <div class="content-wrapper">
+    <router-view />
   </div>
-  <router-view />
 </template>
+<script lang="ts">
+import { defineComponent } from "vue";
+import { useStore } from "@/store";
+import { ActionTypes } from "@/store/actionTypes";
+import Header from "@/components/Header.vue";
+
+export default defineComponent({
+  components: {
+    Header,
+  },
+  beforeMount() {
+    const store = useStore();
+    store.dispatch(ActionTypes.CONNECT);
+  },
+  beforeUnmount() {
+    const store = useStore();
+    // Disconnect from the websocket
+    store.dispatch(ActionTypes.DISCONNECT);
+  },
+});
+</script>
 
 <style>
+body {
+  background-color: #b63336;
+  padding: 0;
+  margin: 0;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -15,16 +40,9 @@
   color: #2c3e50;
 }
 
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
+.content-wrapper {
+  max-width: 1272px;
+  padding: 32px 16px;
+  margin: 0 auto;
 }
 </style>
