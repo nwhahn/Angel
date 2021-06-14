@@ -21,37 +21,59 @@
       </router-link>
     </div>
   </div>
-  <ul>
+  <ul class="breadcrumb-data">
     <li v-for="crumb in crumbs" :key="crumb.path">
-      {{ crumb.path }}
+      <router-link :to="crumb.to">{{ crumb.text }}</router-link>
     </li>
   </ul>
 </template>
 <script lang="ts">
 import { defineComponent, computed } from "vue";
-import { useStore } from "@/store";
+import { store, useStore } from "@/store";
+import { RouteRecordName } from "vue-router";
 export default defineComponent({
   computed: {
     crumbs() {
       const currentPath: string = this.$route.path;
       let pathArray = currentPath.split("/").filter((el) => el !== "");
+      if (!pathArray.length) {
+        pathArray.push("services");
+      }
       const breadcumbs = pathArray.reduce(
         (
           breadcumbArray: Array<{
             path: string;
             to: string;
-            text: unknown;
+            text: RouteRecordName | string;
           }> = [],
           path: string,
           idx
         ) => {
           const matchedRoute = this.$route.matched[idx];
+          const prevRoute =
+            (breadcumbArray[breadcumbArray.length - 1] ?? {}).path || "";
+          let text: string;
+
+          switch (prevRoute) {
+            case "services":
+              // eslint-disable-next-line no-case-declarations
+              const service = computed(() => store.getters.getService(path));
+              text = service?.value?.name || path;
+              break;
+            default:
+              text =
+                matchedRoute && matchedRoute.name
+                  ? matchedRoute.name?.toString()
+                  : path;
+              break;
+          }
+
           breadcumbArray.push({
             path,
             to: breadcumbArray[idx - 1]
               ? "/" + breadcumbArray[idx - 1].path + "/" + path
               : "/" + path,
-            text: matchedRoute && matchedRoute.name ? matchedRoute.name : path,
+            text: text.substring(0, 1).toUpperCase() + text.substring(1),
           });
           return breadcumbArray;
         },
@@ -146,5 +168,32 @@ export default defineComponent({
 }
 .tooltip:hover .tooltiptext {
   visibility: visible;
+}
+
+.breadcrumb-data {
+  display: flex;
+  justify-content: flex-start;
+  list-style-type: none;
+  background: -webkit-linear-gradient(#51051c, #bd27a6, #b63336);
+  margin-block-start: unset;
+  margin-block-end: unset;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.breadcrumb-data > li {
+  margin-right: 16px;
+  border-left: 1px solid whitesmoke;
+  padding-left: 8px;
+}
+
+.breadcrumb-data > li > a {
+  text-decoration: none;
+  color: white;
+}
+
+.breadcrumb-data > li > a.router-link-active,
+a:hover {
+  font-weight: bold;
 }
 </style>
